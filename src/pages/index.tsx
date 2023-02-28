@@ -48,16 +48,23 @@ const Home: NextPage = () => {
       console.log(res);
     } catch (error) {
       const axiosError = error as AxiosError;
-      toast({
-        title: `Could not parse Code.`,
-        status: "error",
-        description:
-          "We are currently expanding the grammars that can be supported. Please wait for a while.",
-        isClosable: true,
-      });
-
-      const responseData = axiosError.response?.data as Object;
-      setAfter("error" in responseData ? (responseData.error as string) : "");
+      if (axiosError.response?.status === 400) {
+        toast({
+          title: `Could not parse Code.`,
+          status: "error",
+          description:
+            "We are currently expanding the grammars that can be supported. Please wait for a while.",
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: axiosError.name,
+          status: "error",
+          description: axiosError.message,
+          isClosable: true,
+        });
+      }
+      setAfter("");
       console.log(error);
     }
   };
