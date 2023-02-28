@@ -1,11 +1,72 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import { Box, Button, HStack, Textarea, useToast } from "@chakra-ui/react";
+import { MouseEvent, MouseEventHandler, useEffect, useState } from "react";
+import { NextPage } from "next";
+import * as prettier from "prettier";
+import * as cadence from "prettier-plugin-cadence";
+// import CodeEditor from "@/components/molecules/editor/CodeEditor";
+import dynamic from "next/dynamic";
+// import fs from "fs";
+// import * as antlr from "antlr4";
 
-const inter = Inter({ subsets: ['latin'] })
+const CodeEditor = dynamic(
+  () => import("@/components/molecules/editor/CodeEditor"),
+  { ssr: false }
+);
+const inter = Inter({ subsets: ["latin"] });
+const sampleCode = `
+access(all) contract HelloWorld {
+// Declare a public field of type String.
+//
+// All fields must be initialized in the init() function.
+access(all) let greeting: String // The init() function is required if the contract contains any fields.
+init(){self.greeting="Hello, World!"}
+// Public function that returns our friendly greeting!
+access(all) fun hello(): String {
 
-export default function Home() {
+
+
+
+
+
+
+
+return self.greeting
+}
+init(){self.greeting="Hello, World!"}
+}
+`;
+
+const Home: NextPage = () => {
+  const toast = useToast();
+  const [before, setBefore] = useState<string>("");
+  const [after, setAfter] = useState<string>("\n".repeat(29));
+  const onClick = async () => {
+    console.log(before);
+    try {
+      const text = prettier.format(before, {
+        parser: "cadence",
+        plugins: [cadence],
+      });
+      setAfter(text);
+    } catch (error) {
+      toast({
+        title: `Could not parse Code.`,
+        status: "error",
+        description:
+          "We are currently expanding the grammars that can be supported. Please wait for a while.",
+        isClosable: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    setBefore(sampleCode);
+  }, []);
+
   return (
     <>
       <Head>
@@ -14,110 +75,44 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
+      <Box backgroundColor={"blackAlpha.700"} height="100vh">
+        <Box height="5vh" />
+        <HStack>
+          <Box width={"5vw"} />
           <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
+            alt="logo"
+            src={"/PrettifyCadence.png"}
+            width="400"
+            height="30"
           />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+        </HStack>
+        <HStack justifyContent={"center"} height={"80vh"}>
+          <CodeEditor
+            value={before}
+            onChange={(value, event) => setBefore(value)}
+            width={"40vw"}
+            maxLines={40}
+          />
+          <Button ml="3vw" mr="3vw" type="button" onClick={() => onClick()}>
+            {"Pretty >>"}
+          </Button>
+          <CodeEditor value={after} width={"40vw"} maxLines={40} />
+        </HStack>
+        <Box height="10vh" />
+      </Box>
     </>
-  )
+  );
+};
+
+export async function getStaticProps() {
+  // `getStaticProps()` の中で `fs` を少しでも利用すれば OK
+  // fs;
+  // cadence;
+  // prettier;
+  // antlr;
+  return {
+    props: {},
+  };
 }
+
+export default Home;
