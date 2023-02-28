@@ -5,7 +5,7 @@ import { Box, Button, HStack, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 const CodeEditor = dynamic(
   () => import("@/components/molecules/editor/CodeEditor"),
@@ -40,33 +40,25 @@ const Home: NextPage = () => {
   const [after, setAfter] = useState<string>("\n".repeat(29));
 
   const onClick = async () => {
-    console.log(before);
     try {
       const res = await axios.post("/api/code", {
         code: before,
       });
-      if (res.status === 200) {
-        setAfter(res.data.code);
-      } else {
-        if (res.data.error) {
-          toast({
-            title: `Could not parse Code.`,
-            status: "error",
-            description:
-              "We are currently expanding the grammars that can be supported. Please wait for a while.",
-            isClosable: true,
-          });
-        }
-        setAfter(res.data.error ?? "Unknown Error.");
-      }
+      setAfter(res.data.code);
       console.log(res);
     } catch (error) {
+      const axiosError = error as AxiosError;
       toast({
-        title: `Network Error.`,
+        title: `Could not parse Code.`,
         status: "error",
+        description:
+          "We are currently expanding the grammars that can be supported. Please wait for a while.",
         isClosable: true,
       });
-      throw error;
+
+      const responseData = axiosError.response?.data as Object;
+      setAfter("error" in responseData ? (responseData.error as string) : "");
+      console.log(error);
     }
   };
 
