@@ -1,23 +1,16 @@
 import React from "react";
 import Head from "next/head";
 import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import { Box, Button, HStack, Textarea, useToast } from "@chakra-ui/react";
-import { MouseEvent, MouseEventHandler, useEffect, useState } from "react";
+import { Box, Button, HStack, useToast } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { NextPage } from "next";
-import * as prettier from "prettier";
-import * as cadence from "prettier-plugin-cadence";
-// import CodeEditor from "@/components/molecules/editor/CodeEditor";
 import dynamic from "next/dynamic";
-// import fs from "fs";
-// import * as antlr from "antlr4";
+import axios from "axios";
 
 const CodeEditor = dynamic(
   () => import("@/components/molecules/editor/CodeEditor"),
   { ssr: false }
 );
-const inter = Inter({ subsets: ["latin"] });
 const sampleCode = `
 access(all) contract HelloWorld {
 // Declare a public field of type String.
@@ -45,14 +38,15 @@ const Home: NextPage = () => {
   const toast = useToast();
   const [before, setBefore] = useState<string>("");
   const [after, setAfter] = useState<string>("\n".repeat(29));
+
   const onClick = async () => {
     console.log(before);
     try {
-      const text = prettier.format(before, {
-        parser: "cadence",
-        plugins: [cadence],
+      const res = await axios.post("/api/code", {
+        code: before,
       });
-      setAfter(text);
+      setAfter(res.data.code);
+      console.log(res);
     } catch (error) {
       toast({
         title: `Could not parse Code.`,
@@ -107,11 +101,6 @@ const Home: NextPage = () => {
 };
 
 export async function getStaticProps() {
-  // `getStaticProps()` の中で `fs` を少しでも利用すれば OK
-  // fs;
-  // cadence;
-  // prettier;
-  // antlr;
   return {
     props: {},
   };
