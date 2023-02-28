@@ -3,7 +3,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as prettier from "prettier";
 import * as cadence from "prettier-plugin-cadence";
 
-type Data = {
+type ErrorMessage = {
+  error?: string;
+};
+
+type Data = ErrorMessage & {
   code: string;
 };
 
@@ -22,7 +26,7 @@ export default function handler(
       });
       res.status(200).json({ code: text });
     } catch (error) {
-      res.status(400).errored;
+      res.status(400).json({ error: (error as Error).message } as Data);
     }
   }
 }

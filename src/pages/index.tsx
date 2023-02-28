@@ -45,14 +45,25 @@ const Home: NextPage = () => {
       const res = await axios.post("/api/code", {
         code: before,
       });
-      setAfter(res.data.code);
+      if (res.status === 200) {
+        setAfter(res.data.code);
+      } else {
+        if (res.data.error) {
+          toast({
+            title: `Could not parse Code.`,
+            status: "error",
+            description:
+              "We are currently expanding the grammars that can be supported. Please wait for a while.",
+            isClosable: true,
+          });
+        }
+        setAfter(res.data.error ?? "Unknown Error.");
+      }
       console.log(res);
     } catch (error) {
       toast({
-        title: `Could not parse Code.`,
+        title: `Network Error.`,
         status: "error",
-        description:
-          "We are currently expanding the grammars that can be supported. Please wait for a while.",
         isClosable: true,
       });
       throw error;
