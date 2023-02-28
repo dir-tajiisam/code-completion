@@ -61,6 +61,7 @@ const Home: NextPage = () => {
           "We are currently expanding the grammars that can be supported. Please wait for a while.",
         isClosable: true,
       });
+      throw error;
     }
   };
 
