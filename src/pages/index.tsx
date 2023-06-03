@@ -129,7 +129,7 @@ const Home: NextPage = () => {
             Code Conversion
           </Heading>
         </HStack>
-        <VStack height={"80vh"} backgroundColor={"lightgrey"} m={"0 3vw"}>
+        <VStack height={"85%"} backgroundColor={"lightgrey"} m={"0 3vw"}>
           <PasswordInput
             onChange={(e) => setKey(e.target.value)}
             placeholder="Enter your OpenAI API Key."
