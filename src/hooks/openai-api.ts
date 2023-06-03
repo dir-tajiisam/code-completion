@@ -27,7 +27,7 @@ const endpoint = "https://api.openai.com/v1/chat/completions";
 
 const chatCompletion = async (
   prompt: string,
-  key: string,
+  apiKey: string,
   maxTokens: number
 ): Promise<string> => {
   const requestData: ChatRequestData = {
@@ -47,7 +47,7 @@ const chatCompletion = async (
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${apiKey}`,
     },
   };
 
@@ -68,7 +68,7 @@ ${props.code}
 export type CodeConvertType = {
   code: string;
   mode: string;
-  key: string;
+  apiKey: string;
 };
 
 export const useApi = () => {
@@ -77,34 +77,40 @@ export const useApi = () => {
     mode: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<AxiosError | null>(null);
   const [valid, setValid] = useState<boolean>(true);
 
   const handleSubmit = async (props: CodeConvertType) => {
     setValid(true);
-    setError("");
+    setError(null);
 
     // call openai api
     setLoading(true);
-    const prompt = createPrompt(props);
-    const response = await chatCompletion(prompt, props.key, 2000);
-    // const response =
-    //   '```java\npublic class OrderDiscount {\n    public static void main(String[] args) {\n        String companyName = "Semantic Designs";\n        String street = "8101 Asmara Dr.";\n        String city = "Austin";\n        String state = "TX";\n        int zip = 78750;\n\n        String item = "Blue widget";\n        int quantity = 217;\n        float price = 24.95f;\n\n        float totalAmount = 0;\n        final float discountThreshold = 1111.11f;\n        final int discountPercent = 20;\n        float discountAmount = 0;\n\n        totalAmount = quantity * price;\n        if (totalAmount > discountThreshold) {\n            discountAmount = (totalAmount * discountPercent) / 100f;\n            totalAmount = totalAmount - discountAmount;\n        }\n\n        System.out.println(companyName);\n        System.out.printf("Total: $%.2f", totalAmount);\n    }\n}\n```';
-    console.log(response);
-    // abstract inner of code block from response
     try {
-      const codeBlock = response.match(/```(\w+)\n([\s\S]*)```/);
-      if (!codeBlock) {
-        throw new Error("invalid response");
+      const prompt = createPrompt(props);
+      const response = await chatCompletion(prompt, props.apiKey, 2000);
+      // const response =
+      //   '```java\npublic class OrderDiscount {\n    public static void main(String[] args) {\n        String companyName = "Semantic Designs";\n        String street = "8101 Asmara Dr.";\n        String city = "Austin";\n        String state = "TX";\n        int zip = 78750;\n\n        String item = "Blue widget";\n        int quantity = 217;\n        float price = 24.95f;\n\n        float totalAmount = 0;\n        final float discountThreshold = 1111.11f;\n        final int discountPercent = 20;\n        float discountAmount = 0;\n\n        totalAmount = quantity * price;\n        if (totalAmount > discountThreshold) {\n            discountAmount = (totalAmount * discountPercent) / 100f;\n            totalAmount = totalAmount - discountAmount;\n        }\n\n        System.out.println(companyName);\n        System.out.printf("Total: $%.2f", totalAmount);\n    }\n}\n```';
+      console.log(response);
+      // abstract inner of code block from response
+      try {
+        const codeBlock = response.match(/```(\w+)\n([\s\S]*)```/);
+        if (!codeBlock) {
+          throw new Error("invalid response");
+        }
+        const mode = (codeBlock && codeBlock[1]) ?? "error";
+        const code = (codeBlock && codeBlock[2]) ?? "error";
+        setResponse({ code, mode });
+        setLoading(false);
+      } catch (error) {
+        const mode = "javascript";
+        const code = `maybe error...\n${response}`;
+        setResponse({ code, mode });
+        setLoading(false);
       }
-      const mode = (codeBlock && codeBlock[1]) ?? "error";
-      const code = (codeBlock && codeBlock[2]) ?? "error";
-      setResponse({ code, mode });
-      setLoading(false);
     } catch (error) {
-      const mode = "javascript";
-      const code = `maybe error...\n${response}`;
-      setResponse({ code, mode });
+      const axiosError = error as AxiosError;
+      setError(axiosError);
       setLoading(false);
     }
   };

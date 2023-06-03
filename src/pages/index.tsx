@@ -1,31 +1,26 @@
-import React from "react";
+import React, { FC, useRef } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import {
   Box,
-  Button,
   CircularProgress,
   HStack,
   Heading,
-  Input,
-  MenuIcon,
-  MenuItem,
-  MenuList,
-  Select,
+  Spacer,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   VStack,
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
-import dynamic from "next/dynamic";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { useApi } from "@/hooks/openai-api";
 import PasswordInput from "@/components/molecules/PasswordInput";
+import DrawerMenu from "@/components/molecules/DrawerMenu";
+import Conversion from "@/components/organisms/CodeCompletionConversion";
+import { AxiosError } from "axios";
 
-const CodeEditor = dynamic(
-  () => import("@/components/molecules/editor/CodeEditor"),
-  { ssr: false }
-);
 const sampleCode = `IDENTIFICATION DIVISION.
 PROGRAM-ID. ORDER-DISCOUNT.
 
@@ -71,32 +66,28 @@ DISPLAY-TOTAL.
   MOVE TOTAL-AMOUNT TO TOTAL-FOR-OUTPUT.
   DISPLAY "Total: ", TOTAL-FOR-OUTPUT.
 `;
+
 const Home: NextPage = () => {
   const toast = useToast();
-  const [before, setBefore] = useState<string>("");
-  const [after, setAfter] = useState<string>("\n".repeat(29));
-  const [mode, setMode] = useState<string>("");
-  const [key, setKey] = useState<string>("");
-  const [canCallApi, setCanCallApi] = useState<boolean>(false);
+  const [apiKey, setApiKey] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+
+  useEffect(() => {
+    if (error === null) return;
+    toast({
+      title: error.name,
+      status: "error",
+      description: error.message,
+      isClosable: true,
+    });
+  }, [error, toast]);
 
   // call api
-  const { response, loading, error, valid, handleSubmit } = useApi();
-  const onClick = async () => {
-    handleSubmit({ code: before, key: key, mode: mode });
-  };
-
-  useEffect(() => {
-    setBefore(sampleCode);
-  }, []);
-
-  useEffect(() => {
-    setCanCallApi(before !== "" && mode !== "" && key !== "");
-  }, [before, mode, key]);
-
   return (
     <>
       <Head>
-        <title>Conversion</title>
+        <title>Code Completion🚀</title>
       </Head>
       <Box height="100vh">
         {loading && (
@@ -126,61 +117,42 @@ const Home: NextPage = () => {
         )}
         <HStack>
           <Heading m="3vh 3vw" variant={"h1"}>
-            Code Conversion
+            Code Completion🚀
           </Heading>
         </HStack>
-        <VStack height={"85%"} backgroundColor={"lightgrey"} m={"0 3vw"}>
+        <VStack height={"88%"} backgroundColor={"lightgrey"} m={"0 3vw"}>
           <PasswordInput
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="Enter your OpenAI API Key."
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your OpenAI API apiKey."
             m={"10px 3vw"}
             h="50px"
             bgColor={"white"}
           />
-          <HStack justifyContent={"center"}>
-            <CodeEditor
-              value={before}
-              onChange={(value, event) => setBefore(value)}
-              width={"38vw"}
-              maxLines={45}
-              mode="javascript"
-            />
-            <VStack width={"10vw"}>
-              <Button
-                ml="3vw"
-                mr="3vw"
-                type="button"
-                onClick={() => onClick()}
-                shadow={"lg"}
-                width={"100%"}
-                bgColor={"pink.200"}
-                isDisabled={!canCallApi}
-              >
-                {"Conversion!!"}
-              </Button>
-              <Select
-                textAlign={"center"}
-                variant={"outline"}
-                placeholder="Language"
-                shadow={"lg"}
-                bgColor={"pink.200"}
-                fontWeight={"bold"}
-                onChange={(e) => setMode(e.target.value)}
-              >
-                <option value="JAVA">JAVA</option>
-                <option value="Python">Python</option>
-                <option value="COBOL">COBOL</option>
-              </Select>
-            </VStack>
-            <CodeEditor
-              value={response.code}
-              width={"38vw"}
-              maxLines={45}
-              mode={response.mode}
-            />
-          </HStack>
+          <Tabs size="md" variant="enclosed">
+            <TabList>
+              <Tab>Conversion</Tab>
+              <Tab>Two</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Conversion
+                  init={sampleCode}
+                  apiKey={apiKey}
+                  setLoading={setLoading}
+                  setError={setError}
+                />
+              </TabPanel>
+              <TabPanel>
+                <Conversion
+                  init={sampleCode}
+                  apiKey={apiKey}
+                  setLoading={setLoading}
+                  setError={setError}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </VStack>
-        <Box height="10vh" />
       </Box>
     </>
   );
