@@ -1,5 +1,5 @@
 {
-  "name": "prettier-plugin-tester",
+  "name": "code-completion",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -21,8 +21,6 @@
     "framer-motion": "^10.0.1",
     "fs": "^0.0.1-security",
     "next": "13.2.1",
-    "prettier": "^2.8.4",
-    "prettier-plugin-cadence": "github:meganepro/prettier-plugin-cadence",
     "react": "18.2.0",
     "react-ace": "^10.1.0",
     "react-dom": "18.2.0",

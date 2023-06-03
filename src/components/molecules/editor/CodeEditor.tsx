@@ -3,6 +3,10 @@ import React, { FC } from "react";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-cobol";
+import "ace-builds/src-noconflict/mode-csharp";
+import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/theme-tomorrow";
 
 type CodeEditorType = {
@@ -11,6 +15,7 @@ type CodeEditorType = {
   maxLines?: number;
   width?: string;
   height?: string;
+  mode: string;
 };
 
 const CodeEditor: FC<CodeEditorType> = ({
@@ -18,6 +23,7 @@ const CodeEditor: FC<CodeEditorType> = ({
   maxLines = 30,
   onChange,
   width = "70vw",
+  mode = "javascript",
 }) => {
   const lineNum = value.split(/\r\n|\r|\n/).length;
   if (lineNum < maxLines) {
@@ -27,7 +33,7 @@ const CodeEditor: FC<CodeEditorType> = ({
   return (
     <Box borderWidth="1px" borderRadius="sm">
       <AceEditor
-        mode="javascript"
+        mode={mode}
         theme="tomorrow"
         value={value}
         onChange={onChange}
