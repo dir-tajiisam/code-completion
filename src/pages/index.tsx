@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   Box,
   Button,
+  CircularProgress,
   HStack,
   Heading,
   Input,
@@ -98,6 +99,31 @@ const Home: NextPage = () => {
         <title>Conversion</title>
       </Head>
       <Box height="100vh">
+        {loading && (
+          <Box
+            position={"fixed"}
+            top={0}
+            left={0}
+            width={"100vw"}
+            height={"100vh"}
+            backgroundColor={"blackAlpha.700"}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            zIndex={1000}
+            backdropBlur={"lg"}
+          >
+            <CircularProgress
+              isIndeterminate
+              size={"100px"}
+              thickness="6px"
+              color="pink.400"
+            />
+            <Heading as={"h2"} color={"white"} ml={4}>
+              AI Thinking...
+            </Heading>
+          </Box>
+        )}
         <HStack>
           <Heading m="3vh 3vw" variant={"h1"}>
             Code Conversion
@@ -127,7 +153,7 @@ const Home: NextPage = () => {
                 onClick={() => onClick()}
                 shadow={"lg"}
                 width={"100%"}
-                bgColor={"lightblue"}
+                bgColor={"pink.200"}
                 isDisabled={!canCallApi}
               >
                 {"Conversion!!"}
@@ -137,7 +163,7 @@ const Home: NextPage = () => {
                 variant={"outline"}
                 placeholder="Language"
                 shadow={"lg"}
-                bgColor={"lightblue"}
+                bgColor={"pink.200"}
                 fontWeight={"bold"}
                 onChange={(e) => setMode(e.target.value)}
               >
