@@ -84,7 +84,8 @@ ${props.code}
 };
 
 const createRefactorPrompt = (props: CodeConvertType) => {
-  return `Please refactor the following program to make it look more modern it in a code block. And explain the refactoring code in ${props.mode}.
+  return `Please refactor the code below to improve maintainability, testability, and reusability. Also, if it is written in the old style, please change it to more modern wording.
+  Code should be described as code blocks, with explanations written in ${props.mode}.
 
 \`\`\`
 ${props.code}
