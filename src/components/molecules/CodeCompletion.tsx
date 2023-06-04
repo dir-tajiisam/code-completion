@@ -12,7 +12,7 @@ export type CodeCompletionProps = {
   before: string;
   after: string;
   mode: string;
-  modeList: { value: string; label: string }[];
+  modeList?: { value: string; label: string }[];
   canCallApi: boolean;
   setBefore: (before: string) => void;
   setMode: (mode: string) => void;
@@ -60,21 +60,23 @@ const CodeCompletion: FC<CodeCompletionProps> = (props) => {
         >
           {buttonTitle}
         </Button>
-        <Select
-          textAlign={"center"}
-          variant={"outline"}
-          placeholder="Language"
-          shadow={"lg"}
-          bgColor={"pink.200"}
-          fontWeight={"bold"}
-          onChange={(e) => setMode(e.target.value)}
-        >
-          {modeList.map((mode) => (
-            <option key={mode.value} value={mode.value}>
-              {mode.label}
-            </option>
-          ))}
-        </Select>
+        {modeList ? (
+          <Select
+            textAlign={"center"}
+            variant={"outline"}
+            placeholder="Language"
+            shadow={"lg"}
+            bgColor={"pink.200"}
+            fontWeight={"bold"}
+            onChange={(e) => setMode(e.target.value)}
+          >
+            {modeList.map((mode) => (
+              <option key={mode.value} value={mode.value}>
+                {mode.label}
+              </option>
+            ))}
+          </Select>
+        ) : null}
       </VStack>
       <CodeEditor value={after} width={"38vw"} maxLines={40} mode={mode} />
     </HStack>

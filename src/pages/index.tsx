@@ -21,6 +21,8 @@ import DrawerMenu from "@/components/molecules/DrawerMenu";
 import Conversion from "@/components/organisms/Conversion";
 import { AxiosError } from "axios";
 import Explain from "@/components/organisms/Explain";
+import UnitTest from "@/components/organisms/UnitTest";
+import Refactor from "@/components/organisms/Refactor";
 
 const sampleCode = `IDENTIFICATION DIVISION.
 PROGRAM-ID. ORDER-DISCOUNT.
@@ -133,6 +135,8 @@ const Home: NextPage = () => {
             <TabList>
               <Tab>Conversion</Tab>
               <Tab>Explain</Tab>
+              <Tab>UnitTest</Tab>
+              <Tab>Refactor</Tab>
             </TabList>
             <TabPanels>
               <TabPanel>
@@ -145,6 +149,22 @@ const Home: NextPage = () => {
               </TabPanel>
               <TabPanel>
                 <Explain
+                  init={sampleCode}
+                  apiKey={apiKey}
+                  setLoading={setLoading}
+                  setError={setError}
+                />
+              </TabPanel>
+              <TabPanel>
+                <UnitTest
+                  init={sampleCode}
+                  apiKey={apiKey}
+                  setLoading={setLoading}
+                  setError={setError}
+                />
+              </TabPanel>
+              <TabPanel>
+                <Refactor
                   init={sampleCode}
                   apiKey={apiKey}
                   setLoading={setLoading}

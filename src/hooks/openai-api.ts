@@ -59,7 +59,7 @@ const chatCompletion = async (
 const createConversionPrompt = (props: CodeConvertType) => {
   return `Please rewrite the following program in ${props.mode} and output it in a code block.
 
-  \`\`\`
+\`\`\`
 ${props.code}
 \`\`\`
 `;
@@ -68,7 +68,25 @@ ${props.code}
 const createExplainPrompt = (props: CodeConvertType) => {
   return `Please explain the following program in ${props.mode}.
 
-  \`\`\`
+\`\`\`
+${props.code}
+\`\`\`
+`;
+};
+
+const createUnitTestPrompt = (props: CodeConvertType) => {
+  return `Please write test code for the following program and output it in a code block. And explain the test code in ${props.mode}.
+
+\`\`\`
+${props.code}
+\`\`\`
+`;
+};
+
+const createRefactorPrompt = (props: CodeConvertType) => {
+  return `Please refactor the following program to make it look more modern it in a code block. And explain the refactoring code in ${props.mode}.
+
+\`\`\`
 ${props.code}
 \`\`\`
 `;
@@ -142,7 +160,7 @@ export const useExplainApi = () => {
   const [error, setError] = useState<AxiosError | null>(null);
   const [valid, setValid] = useState<boolean>(true);
 
-  const handleConversionSubmit = async (props: CodeConvertType) => {
+  const handleSubmit = async (props: CodeConvertType) => {
     setValid(true);
     setError(null);
 
@@ -162,12 +180,12 @@ export const useExplainApi = () => {
         // }
         // const code = (codeBlock && codeBlock[2]) ?? "error";
         const code = response;
-        setResponse({ code, mode: "javascript" });
+        setResponse({ code, mode: "markdown" });
         setLoading(false);
       } catch (error) {
-        const mode = "javascript";
+        const mode = "markdown";
         const code = `maybe error...\n${response}`;
-        setResponse({ code, mode: "javascript" });
+        setResponse({ code, mode: "markdown" });
         setLoading(false);
       }
     } catch (error) {
@@ -182,6 +200,110 @@ export const useExplainApi = () => {
     loading,
     error,
     valid,
-    handleSubmit: handleConversionSubmit,
+    handleSubmit: handleSubmit,
+  };
+};
+
+export const useUnitTestApi = () => {
+  const [response, setResponse] = useState<{ code: string; mode: string }>({
+    code: "",
+    mode: "",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+  const [valid, setValid] = useState<boolean>(true);
+
+  const handleSubmit = async (props: CodeConvertType) => {
+    setValid(true);
+    setError(null);
+
+    // call openai api
+    setLoading(true);
+    try {
+      const prompt = createUnitTestPrompt(props);
+      const response = await chatCompletion(prompt, props.apiKey, 2000);
+      // abstract inner of code block from response
+      try {
+        // const codeBlock = response.match(/```(\w*)\n([\s\S]*)```/);
+        // if (!codeBlock) {
+        //   throw new Error("invalid response");
+        // }
+        // const mode = (codeBlock && codeBlock[1]) ?? "";
+        // const code = (codeBlock && codeBlock[2]) ?? "error";
+        const code = response;
+        const mode = "markdown";
+        setResponse({ code, mode });
+        setLoading(false);
+      } catch (error) {
+        const mode = "markdown";
+        const code = `maybe error...\n${response}`;
+        setResponse({ code, mode });
+        setLoading(false);
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      setError(axiosError);
+      setLoading(false);
+    }
+  };
+
+  return {
+    response,
+    loading,
+    error,
+    valid,
+    handleSubmit: handleSubmit,
+  };
+};
+
+export const useRefactorApi = () => {
+  const [response, setResponse] = useState<{ code: string; mode: string }>({
+    code: "",
+    mode: "",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+  const [valid, setValid] = useState<boolean>(true);
+
+  const handleSubmit = async (props: CodeConvertType) => {
+    setValid(true);
+    setError(null);
+
+    // call openai api
+    setLoading(true);
+    try {
+      const prompt = createRefactorPrompt(props);
+      const response = await chatCompletion(prompt, props.apiKey, 2000);
+      // abstract inner of code block from response
+      try {
+        // const codeBlock = response.match(/```(\w*)\n([\s\S]*)```/);
+        // if (!codeBlock) {
+        //   throw new Error("invalid response");
+        // }
+        // const mode = (codeBlock && codeBlock[1]) ?? "";
+        // const code = (codeBlock && codeBlock[2]) ?? "error";
+        const code = response;
+        const mode = "markdown";
+        setResponse({ code, mode });
+        setLoading(false);
+      } catch (error) {
+        const mode = "markdown";
+        const code = `maybe error...\n${response}`;
+        setResponse({ code, mode });
+        setLoading(false);
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      setError(axiosError);
+      setLoading(false);
+    }
+  };
+
+  return {
+    response,
+    loading,
+    error,
+    valid,
+    handleSubmit: handleSubmit,
   };
 };
