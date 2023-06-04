@@ -11,6 +11,8 @@ import {
   DrawerOverlay,
   DrawerProps,
   Input,
+  Radio,
+  Stack,
   useDisclosure,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
@@ -28,7 +30,7 @@ const DrawerMenu: FC<ButtonProps> = (props: ButtonProps) => {
         isOpen={isOpen}
         placement="right"
         onClose={onClose}
-        finalFocusRef={btnRef}
+        // finalFocusRef={btnRef}
       >
         <DrawerOverlay />
         <DrawerContent>
