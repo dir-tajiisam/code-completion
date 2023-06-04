@@ -56,8 +56,17 @@ const chatCompletion = async (
   return message.content;
 };
 
-const createPrompt = (props: CodeConvertType) => {
+const createConversionPrompt = (props: CodeConvertType) => {
   return `Please rewrite the following program in ${props.mode} and output it in a code block.
+
+  \`\`\`
+${props.code}
+\`\`\`
+`;
+};
+
+const createExplainPrompt = (props: CodeConvertType) => {
+  return `Please explain the following program in ${props.mode}.
 
   \`\`\`
 ${props.code}
@@ -71,7 +80,7 @@ export type CodeConvertType = {
   apiKey: string;
 };
 
-export const useApi = () => {
+export const useConversionApi = () => {
   const [response, setResponse] = useState<{ code: string; mode: string }>({
     code: "",
     mode: "",
@@ -80,25 +89,25 @@ export const useApi = () => {
   const [error, setError] = useState<AxiosError | null>(null);
   const [valid, setValid] = useState<boolean>(true);
 
-  const handleSubmit = async (props: CodeConvertType) => {
+  const handleConversionSubmit = async (props: CodeConvertType) => {
     setValid(true);
     setError(null);
 
     // call openai api
     setLoading(true);
     try {
-      const prompt = createPrompt(props);
+      const prompt = createConversionPrompt(props);
       const response = await chatCompletion(prompt, props.apiKey, 2000);
       // const response =
       //   '```java\npublic class OrderDiscount {\n    public static void main(String[] args) {\n        String companyName = "Semantic Designs";\n        String street = "8101 Asmara Dr.";\n        String city = "Austin";\n        String state = "TX";\n        int zip = 78750;\n\n        String item = "Blue widget";\n        int quantity = 217;\n        float price = 24.95f;\n\n        float totalAmount = 0;\n        final float discountThreshold = 1111.11f;\n        final int discountPercent = 20;\n        float discountAmount = 0;\n\n        totalAmount = quantity * price;\n        if (totalAmount > discountThreshold) {\n            discountAmount = (totalAmount * discountPercent) / 100f;\n            totalAmount = totalAmount - discountAmount;\n        }\n\n        System.out.println(companyName);\n        System.out.printf("Total: $%.2f", totalAmount);\n    }\n}\n```';
       console.log(response);
       // abstract inner of code block from response
       try {
-        const codeBlock = response.match(/```(\w+)\n([\s\S]*)```/);
+        const codeBlock = response.match(/```(\w*)\n([\s\S]*)```/);
         if (!codeBlock) {
           throw new Error("invalid response");
         }
-        const mode = (codeBlock && codeBlock[1]) ?? "error";
+        const mode = (codeBlock && codeBlock[1]) ?? "";
         const code = (codeBlock && codeBlock[2]) ?? "error";
         setResponse({ code, mode });
         setLoading(false);
@@ -115,5 +124,64 @@ export const useApi = () => {
     }
   };
 
-  return { response, loading, error, valid, handleSubmit };
+  return {
+    response,
+    loading,
+    error,
+    valid,
+    handleSubmit: handleConversionSubmit,
+  };
+};
+
+export const useExplainApi = () => {
+  const [response, setResponse] = useState<{ code: string; mode: string }>({
+    code: "",
+    mode: "",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+  const [valid, setValid] = useState<boolean>(true);
+
+  const handleConversionSubmit = async (props: CodeConvertType) => {
+    setValid(true);
+    setError(null);
+
+    // call openai api
+    setLoading(true);
+    try {
+      const prompt = createExplainPrompt(props);
+      const response = await chatCompletion(prompt, props.apiKey, 2000);
+      // const response =
+      //   '```java\npublic class OrderDiscount {\n    public static void main(String[] args) {\n        String companyName = "Semantic Designs";\n        String street = "8101 Asmara Dr.";\n        String city = "Austin";\n        String state = "TX";\n        int zip = 78750;\n\n        String item = "Blue widget";\n        int quantity = 217;\n        float price = 24.95f;\n\n        float totalAmount = 0;\n        final float discountThreshold = 1111.11f;\n        final int discountPercent = 20;\n        float discountAmount = 0;\n\n        totalAmount = quantity * price;\n        if (totalAmount > discountThreshold) {\n            discountAmount = (totalAmount * discountPercent) / 100f;\n            totalAmount = totalAmount - discountAmount;\n        }\n\n        System.out.println(companyName);\n        System.out.printf("Total: $%.2f", totalAmount);\n    }\n}\n```';
+      console.log(response);
+      // abstract inner of code block from response
+      try {
+        // const codeBlock = response.match(/```(\w*)\n([\s\S]*)```/);
+        // if (!codeBlock) {
+        //   throw new Error("invalid response");
+        // }
+        // const code = (codeBlock && codeBlock[2]) ?? "error";
+        const code = response;
+        setResponse({ code, mode: "javascript" });
+        setLoading(false);
+      } catch (error) {
+        const mode = "javascript";
+        const code = `maybe error...\n${response}`;
+        setResponse({ code, mode: "javascript" });
+        setLoading(false);
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      setError(axiosError);
+      setLoading(false);
+    }
+  };
+
+  return {
+    response,
+    loading,
+    error,
+    valid,
+    handleSubmit: handleConversionSubmit,
+  };
 };

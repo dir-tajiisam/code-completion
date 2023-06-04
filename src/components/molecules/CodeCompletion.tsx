@@ -17,6 +17,7 @@ export type CodeCompletionProps = {
   setBefore: (before: string) => void;
   setMode: (mode: string) => void;
   handleSubmit: () => void;
+  buttonTitle?: string;
 };
 
 const CodeCompletion: FC<CodeCompletionProps> = (props) => {
@@ -29,6 +30,7 @@ const CodeCompletion: FC<CodeCompletionProps> = (props) => {
     setBefore,
     setMode,
     handleSubmit,
+    buttonTitle = "Conversion!!",
   } = props;
 
   // call api
@@ -56,7 +58,7 @@ const CodeCompletion: FC<CodeCompletionProps> = (props) => {
           bgColor={"pink.200"}
           isDisabled={!canCallApi}
         >
-          {"Conversion!!"}
+          {buttonTitle}
         </Button>
         <Select
           textAlign={"center"}

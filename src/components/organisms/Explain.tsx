@@ -1,25 +1,24 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import CodeCompletion from "../molecules/CodeCompletion";
-import { useApi } from "@/hooks/openai-api";
+import { useExplainApi } from "@/hooks/openai-api";
 import { AxiosError } from "axios";
 
-export type ConversionProps = {
+export type ExplainProps = {
   init: string;
   apiKey: string;
   setLoading: (loading: boolean) => void;
   setError: (error: AxiosError) => void;
 };
 
-const Conversion: FC<ConversionProps> = (props) => {
+const Explain: FC<ExplainProps> = (props) => {
   const { init, apiKey, setLoading, setError } = props;
 
   const [before, setBefore] = useState<string>(init);
-  // const [after, setAfter] = useState<string>("\n".repeat(29));
   const [mode, setMode] = useState<string>("");
   const [canCallApi, setCanCallApi] = useState<boolean>(false);
 
   // call api
-  const { response, loading, error, valid, handleSubmit } = useApi();
+  const { response, loading, error, valid, handleSubmit } = useExplainApi();
   const onClick = async () => {
     handleSubmit({ code: before, apiKey: apiKey, mode: mode });
   };
@@ -41,22 +40,23 @@ const Conversion: FC<ConversionProps> = (props) => {
     <CodeCompletion
       before={before}
       after={response.code}
-      mode={response.mode}
+      mode={response.mode || mode}
       modeList={[
-        { value: "python", label: "Python" },
+        { value: "japanese", label: "日本語" },
         // { value: "javascript", label: "JavaScript" },
-        { value: "java", label: "Java" },
+        { value: "english", label: "英語" },
         // { value: "csharp", label: "C#" },
         // { value: "cpp", label: "C++" },
         // { value: "go", label: "Go" },
-        { value: "cobol", label: "COBOL" },
+        { value: "chinese", label: "中国語" },
       ]}
       canCallApi={canCallApi}
       setBefore={setBefore}
       setMode={setMode}
       handleSubmit={onClick}
+      buttonTitle="Explain!!"
     />
   );
 };
 
-export default Conversion;
+export default Explain;

@@ -18,8 +18,9 @@ import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import PasswordInput from "@/components/molecules/PasswordInput";
 import DrawerMenu from "@/components/molecules/DrawerMenu";
-import Conversion from "@/components/organisms/CodeCompletionConversion";
+import Conversion from "@/components/organisms/Conversion";
 import { AxiosError } from "axios";
+import Explain from "@/components/organisms/Explain";
 
 const sampleCode = `IDENTIFICATION DIVISION.
 PROGRAM-ID. ORDER-DISCOUNT.
@@ -128,10 +129,10 @@ const Home: NextPage = () => {
             h="50px"
             bgColor={"white"}
           />
-          <Tabs size="md" variant="enclosed">
+          <Tabs size="md" variant="enclosed" colorScheme="pink">
             <TabList>
               <Tab>Conversion</Tab>
-              <Tab>Two</Tab>
+              <Tab>Explain</Tab>
             </TabList>
             <TabPanels>
               <TabPanel>
@@ -143,7 +144,7 @@ const Home: NextPage = () => {
                 />
               </TabPanel>
               <TabPanel>
-                <Conversion
+                <Explain
                   init={sampleCode}
                   apiKey={apiKey}
                   setLoading={setLoading}
