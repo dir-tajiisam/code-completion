@@ -31,7 +31,8 @@ const chatCompletion = async (
   maxTokens: number
 ): Promise<string> => {
   const requestData: ChatRequestData = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-1106-preview",
+    // model: "gpt-3.5-turbo",
     // model: "gpt-4",
     messages: [
       {
@@ -117,8 +118,6 @@ export const useConversionApi = () => {
     try {
       const prompt = createConversionPrompt(props);
       const response = await chatCompletion(prompt, props.apiKey, 2000);
-      // const response =
-      //   '```java\npublic class OrderDiscount {\n    public static void main(String[] args) {\n        String companyName = "Semantic Designs";\n        String street = "8101 Asmara Dr.";\n        String city = "Austin";\n        String state = "TX";\n        int zip = 78750;\n\n        String item = "Blue widget";\n        int quantity = 217;\n        float price = 24.95f;\n\n        float totalAmount = 0;\n        final float discountThreshold = 1111.11f;\n        final int discountPercent = 20;\n        float discountAmount = 0;\n\n        totalAmount = quantity * price;\n        if (totalAmount > discountThreshold) {\n            discountAmount = (totalAmount * discountPercent) / 100f;\n            totalAmount = totalAmount - discountAmount;\n        }\n\n        System.out.println(companyName);\n        System.out.printf("Total: $%.2f", totalAmount);\n    }\n}\n```';
       console.log(response);
       // abstract inner of code block from response
       try {
